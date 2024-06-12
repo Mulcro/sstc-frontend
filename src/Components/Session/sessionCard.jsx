@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const SessionCard = ({session,idx,handleEndSession,handleFetchActiveSessions}) => {
+const SessionCard = ({session,idx,handleEndSession}) => {
     const [currTime,setTimeLeft] = useState();
 
     useEffect(() => {
@@ -22,16 +22,15 @@ const SessionCard = ({session,idx,handleEndSession,handleFetchActiveSessions}) =
                 .then(res => {
                     if(res.ok)
                         return res.json();
-                    throw new Error()
+                    else{
+                        return res.json().then(err => new Error(err.message))
+                    }
                 })
                 .then(data => {
                     console.log(data)
-                    handleFetchActiveSessions();
-
                 })
                 .catch(err => {
-                    console.log(err);
-                    // setErr(err.message)
+                    setErr(err.message)
                 })
             }
         }
@@ -44,7 +43,7 @@ const SessionCard = ({session,idx,handleEndSession,handleFetchActiveSessions}) =
         return () => clearInterval(timerId);
     },[session])
 
-    
+    //TO-DO
     const parseDate = (date) => {
         console.log(date);
     }
@@ -62,7 +61,7 @@ const SessionCard = ({session,idx,handleEndSession,handleFetchActiveSessions}) =
             <p>Expected End: {session.expectedEnd} </p>   
 
             {/* TO-DO: This should only appear when hovered on and should animate out. Keep the animation simple and subtle  */}
-            <p>Time Left: {currTime}</p>
+            <p>Time Left: {formatTime(currTime)}</p>
 
             <div>
                 <button onClick={() => handleEndSession(session._id)}>End Session</button>
