@@ -2,6 +2,8 @@ import {useEffect, useRef, useState} from 'react';
 import useFetch from '../../hooks/useFetch';
 import SessionCard from './sessionCard';
 import Popup from './popup';
+import {useSelector} from 'react-redux';
+
 
 //TO-DO:Connect magnetic card readers to this and allow users to check in with their ID cards
 const Session = () => {
@@ -21,14 +23,15 @@ const Session = () => {
     const [tutorPopup,setTutorPopup] = useState(false);
     const [queuePopup,setQueuePopup] = useState(false);
 
-    const [activeSessions, setActiveSessions] = useState();
-
     const [subjectsData, subjectsLoading, subjectsError] = useFetch('http://localhost:5000/subjects');
     
     const studentIdRef = useRef();
 
+    const activeSessions = useSelector(state => {
+        return state.sessions;
+    })
 
-
+    //Not supposed to be here, maybe add to redux global state so I can check tutors in and out anywhere in application
     const handleCheckIn = (e) => {
         e.preventDefault();
         const option = e.target.value;
@@ -83,6 +86,7 @@ const Session = () => {
         })
 
     }
+
     const hadnleFindClockedInTutors = (e) => {
         e.preventDefault();
 
@@ -114,33 +118,6 @@ const Session = () => {
 
     }
 
-    function getTimeLeft(timeout) {
-        return Math.ceil((timeout._idleStart + timeout._idleTimeout - Date.now()) / 1000);
-    }
-
-    //Think it's better to have timer in the sessionCard itself
-    // const setTimer = (sessionId) => {
-    //     setTimeout(() => {
-    //         fetch(`http://localhost:5000/sessions/end/${sessionId}`,{
-    //             method:"PATCH",
-    //             headers:{
-    //                 "Content-Type":"application/json"
-    //             }
-    //         })
-    //         .then(res => {
-    //             if(res.ok)
-    //                 return res.json()
-    //             throw new Error()
-    //         })
-    //         .then(data => console.log(data))
-    //         .catch(err => {
-    //             console.log(err);
-    //             setErr(err.message)
-    //     })
-    //     },2*60*1000)
-    // }
-    
-
     const handleCreateSession = (e) => {
         e.preventDefault();
 
@@ -162,22 +139,21 @@ const Session = () => {
         then(res => {
             if(res.ok)
                 return res.json()
-            else
-                throw new Error(`${res}`)
+            else{
+                return res.json().then(err => new Error(err.message))
+            }
         })
-        .then(data => {
-            // setTimer(data.session._id);
+        .then(() => {
             setTutorPopup(false);
-            handleFetchActiveSessions();
         })
         .catch(
             err => {
-                console.log(err);
-                setErr(err)
+                setErr(err.message)
             }
         )
     }
 
+    //TO-Do: If no tutors are avaialable make it imporisble to get to popup screen
     const handleAddSessionToQueue = (e) => {
         e.preventDefault();
 
@@ -200,14 +176,11 @@ const Session = () => {
                 return res.json()
             else
                 return res.json().then(
-                    err => {throw new Error(err.message)}
+                    err =>  new Error(err.message)
                 )
         })
         .then(data => {
-            //This shouldn't be here
-            // setTimer(data.session._id);
             setTutorPopup(false);
-            handleFetchActiveSessions();
         })
         .catch(
             err => {
@@ -217,19 +190,7 @@ const Session = () => {
         )
     }
 
-
-    //Disable if there's an error initially while fetching data, or maybe switch to trying to fetch the data again instaed of refreshing for sessions
-    const handleFetchActiveSessions = () => {
-        fetch("http://localhost:5000/sessions/active")
-        .then(res => {
-            if(res.ok) return res.json()
-            throw new Error()
-        })
-        .then(data => {
-            console.log(data);
-            setActiveSessions(data)})
-        .catch(err => setErr(err.message))
-    }
+    //TO-DO: make sure this doesnt change the session to inactive so the desk worker can choose to end the session in instead of it being automatically terminated.
 
     const handleEndSession = (sessionId) => {
         
@@ -241,31 +202,16 @@ const Session = () => {
         })
         .then(res => {
             if(res.ok)
-                return handleFetchActiveSessions();
-            throw new Error()
+                return;
+            else{
+                return res.json().then(err => new Error(err.message))
+            }
         })
         .catch(err => {
             setErr(err.message)
         })
     }
     
-
-    useEffect(()=> {
-
-        //TO-DO: Modify this funtion and backend to ping the backend and ensure the sessions are still active
-
-        //TO-DO: make sure this doesnt change the session to inactive so the desk worker can choose to end the session in instead of it being automatically terminated.
-
-        //meaning I probably have to modify the tutor model and the frontend session display to not disapear when the time is up. Rather I should have the tutor be marked as avaialable but the session on going, maybe with a status of; time up but ongoing
-
-        handleFetchActiveSessions();
-
-        const fetchActiveSessionInterval = setInterval(() => {
-            handleFetchActiveSessions()
-        },0.2 * 60 * 1000)
-
-        return () => clearInterval(fetchActiveSessionInterval);
-    },[])
 
     return ( 
         <>
@@ -291,11 +237,6 @@ const Session = () => {
                 </div>                
                 <div>
                     <form className="flex flex-col justify-center items-center bg-black p-5 rounded-xl text-white" action='submit' >
-                        {/* <label htmlFor="">Type</label>
-                        <input type="text" />
-
-                        <label htmlFor="">Student Id</label>
-                        <input onChangetype="number" /> */}
 
                         <label htmlFor="">Subject</label>
                         <select onChange={e => setQuerySubject(e.target.value)} className='text-black'>
@@ -317,13 +258,17 @@ const Session = () => {
                     
                     <div>
                         <h3>Active Session</h3>
-                        <button onClick={() => handleFetchActiveSessions()}>Refresh</button>
                         <div className="flex flex-row gap-4">
-                            { activeSessions &&
-                                activeSessions.sessions.map(
+                            {activeSessions.error &&
+                                <div>
+                                    Something Went Wrong
+                                </div>
+                            }
+                            { activeSessions.data &&
+                                activeSessions.data.map(
                                     (session,idx) => {
                                         return (
-                                            <SessionCard handleFetchActiveSessions={handleFetchActiveSessions} session={session} idx={idx} handleEndSession={handleEndSession}/>
+                                            <SessionCard  session={session} idx={idx} handleEndSession={handleEndSession}/>
                                         )
                                     }
                                 )
