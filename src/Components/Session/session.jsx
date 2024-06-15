@@ -1,19 +1,27 @@
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useRef, useState, useMemo} from 'react';
 import useFetch from '../../hooks/useFetch';
 import SessionCard from './sessionCard';
 import Popup from './popup';
-import {useSelector} from 'react-redux';
+import {useSelector, shallowEqual} from 'react-redux';
+import baseUrl from '../../baseUrl';
+
+let counter = 0;
 
 
 //TO-DO:Connect magnetic card readers to this and allow users to check in with their ID cards
 const Session = () => {
+    console.log('Rerendered: ' + (counter++));
+
     const [studentFirstName, setStudentFirstName] = useState("");
     const [studentLastName, setStudentLastName] = useState("")
     const [studentId, setStudentId] = useState();
     const [querySubject,setQuerySubject] = useState("");
 
+    //Not sure what these 2 are for
     const [err,setErr] = useState(null)
     const [loading,setLoading] = useState()
+    //
+
     const [availableTutors,setAvailableTutors] = useState([]);
     const [clockedInTutors,setClockedInTutors] = useState([]);
 
@@ -23,9 +31,9 @@ const Session = () => {
     const [tutorPopup,setTutorPopup] = useState(false);
     const [queuePopup,setQueuePopup] = useState(false);
 
-    const [subjectsData, subjectsLoading, subjectsError] = useFetch('http://localhost:5000/subjects');
+    const [subjectsData, subjectsLoading, subjectsError] = useFetch(baseUrl + '/subjects');
     
-    const studentIdRef = useRef();
+    const subjectRef = useRef();
 
     const activeSessions = useSelector(state => {
         return state.sessions;
@@ -36,7 +44,7 @@ const Session = () => {
         e.preventDefault();
         const option = e.target.value;
 
-        fetch("http://localhost:5000/tutors/",{
+        fetch(baseUrl + "/tutors/",{
             method: "PATCH",
             headers:{
                 "Content-Type":"application/json"
@@ -59,7 +67,7 @@ const Session = () => {
     const handleFindAvailableTutors = (e) => {
         e.preventDefault();
 
-        fetch("http://localhost:5000/tutors/available",{
+        fetch(baseUrl + "/tutors/available",{
             method: "POST",
             headers:{
                 "Content-Type":"application/json"
@@ -90,7 +98,7 @@ const Session = () => {
     const hadnleFindClockedInTutors = (e) => {
         e.preventDefault();
 
-        fetch("http://localhost:5000/tutors/clockedIn",{
+        fetch(baseUrl + "/tutors/clockedIn",{
             method: "POST",
             headers:{
                 "Content-Type":"application/json"
@@ -121,7 +129,7 @@ const Session = () => {
     const handleCreateSession = (e) => {
         e.preventDefault();
 
-        fetch("http://localhost:5000/sessions", {
+        fetch(baseUrl + "/sessions", {
             method: "POST",
             headers:{
                 "Content-Type":"application/json"
@@ -157,7 +165,7 @@ const Session = () => {
     const handleAddSessionToQueue = (e) => {
         e.preventDefault();
 
-        fetch("http://localhost:5000/sessions/queue", {
+        fetch(baseUrl + "/sessions/queue", {
             method: "POST",
             headers:{
                 "Content-Type":"application/json"
@@ -180,7 +188,7 @@ const Session = () => {
                 )
         })
         .then(data => {
-            setTutorPopup(false);
+            setQueuePopup(false);
         })
         .catch(
             err => {
@@ -211,15 +219,24 @@ const Session = () => {
             setErr(err.message)
         })
     }
+
+    useEffect(() => {
+        if(subjectsData)
+            subjectRef?.current.focus();
+    }, [subjectsData]);
     
 
     return ( 
         <>
-        {subjectsLoading &&
+        {subjectsLoading && !subjectsError && !subjectsData &&
             <div>Loading...</div>
         }
         {subjectsError &&
-            <div>Something went wrong...</div>
+            <div className=' my-2 mx-auto p-3 bg-black border-2 border-orange-400 rounded-xl shadow-2xl w-[20vw]'>
+                <p className=' text-orange-400 text-sm underline'> <span className='font-bold'>Error:</span> {subjectsError}</p>
+
+                <p className='my-2 text-orange-400'>Please refresh page to try again</p>
+            </div>
         }
         {subjectsData &&
             <div className='flex flex-col justify-center items-center'>
@@ -227,7 +244,7 @@ const Session = () => {
                     <h2>Check In & Check Out</h2>
                     <form className='flex flex-col' action="submit">
                         <label className='text-left' htmlFor="">Student ID</label>
-                        <input ref={studentIdRef} type="number" onChange={e => setStudentId(e.target.value)}/>
+                        <input type="number" onChange={e => setStudentId(e.target.value)}/>
 
                         <div className='grid grid-cols-2 gap-2 my-3'>
                             <button value={1} className="p-1 bg-gray-600 rounded-xl border-2 border-black border-solid hover:bg-gray-700 text-white font-bold" onClick={e => handleCheckIn(e)}>Check In</button>
@@ -236,10 +253,12 @@ const Session = () => {
                     </form>
                 </div>                
                 <div>
-                    <form className="flex flex-col justify-center items-center bg-black p-5 rounded-xl text-white" action='submit' >
+                    <form className="flex flex-col justify-center items-center bg-black p-5 rounded-xl h-[25vh]" action='submit' >
 
-                        <label htmlFor="">Subject</label>
-                        <select onChange={e => setQuerySubject(e.target.value)} className='text-black'>
+                        <div className={(!querySubject) ? "block mt-5 mb-2 px-6 py-2 rounded-xl bg-slate-300/60 border-2 border-white" : "hidden" }>
+                            <p className='text-black font-bold'>Select a Subject</p>
+                        </div>
+                        <select ref={subjectRef} onChange={e => setQuerySubject(e.target.value)} className='text-black px-5 py-1 rounded-xl border-slate-600 border-2'>
                             <option value="">--Select Subject</option>
                             {subjectsData.subjects.map((subject, id) => {
                                 return (
@@ -248,30 +267,32 @@ const Session = () => {
                             })}
                         </select>
                         
-                        <div className="flex flex-row gap-2">
-                            <button onClick={(e) => hadnleFindClockedInTutors(e)}>Add student to Queue</button>
-                            <button className="p-2 rounded-l text-white" onClick={e => handleFindAvailableTutors(e)}>Look for available tutors</button>
+                        <div className="flex flex-row gap-2 text-white">
+                            <button className={`my-[1rem] py-1 px-3 bg-slate-500 border border-white rounded-xl  focus:border-2 disabled:border-none disabled:bg-opacity-40 disabled:text-slate-200/20 ${!querySubject ? "" : "hover:bg-slate-600"}`} disabled={(!querySubject || (activeSessions.length < 1)) ? true : false} onClick={(e) => hadnleFindClockedInTutors(e)}>Add student to Queue</button>
+                            <button className={`my-[1rem] py-1 px-3 bg-slate-500 border border-white rounded-xl  focus:border-2 disabled:border-none disabled:bg-opacity-40 disabled:text-slate-200/20 ${!querySubject ? "" : "hover:bg-slate-600"}`} disabled={!querySubject ? true : false} onClick={e => handleFindAvailableTutors(e)}>Look for available tutors</button>
                         </div>
-                        
+                    
 
                     </form>
                     
                     <div>
-                        <h3>Active Session</h3>
-                        <div className="flex flex-row gap-4">
+                        <h3>Active Sessions</h3>
+                        <div className="flex flex-col items-center justify-center gap-4">
                             {activeSessions.error &&
-                                <div>
-                                    Something Went Wrong
+                                <div className='p-3 bg-black border-2 border-orange-400 rounded-xl shadow-2xl '>
+                                    <p className=' text-orange-400 text-sm '>{activeSessions.error}</p>
                                 </div>
                             }
                             { activeSessions.data &&
-                                activeSessions.data.map(
-                                    (session,idx) => {
-                                        return (
-                                            <SessionCard  session={session} idx={idx} handleEndSession={handleEndSession}/>
-                                        )
-                                    }
-                                )
+                                <div className="flex flex-row items-center justify-center gap-4">
+                                    {activeSessions.data.map(
+                                        (session,idx) => {
+                                            return (
+                                                <SessionCard  session={session} key={idx} handleEndSession={handleEndSession}/>
+                                            )
+                                        }
+                                    )}
+                                </div>
                             }
                         </div>
                     </div>
