@@ -1,5 +1,6 @@
 import {useState,useEffect} from 'react';
 import useFetch from '../hooks/useFetch';
+import baseUrl from '../baseUrl';
 
 const Admin = () => {
     const [firstName, setFirstName] = useState('');
@@ -26,7 +27,7 @@ const Admin = () => {
         { startTime: 17, endTime: 18 }
     ]
     
-    const [allSubjects, subjectsLoading, subjectsError] = useFetch('http://localhost:5000/subjects');
+    const [allSubjects, subjectsLoading, subjectsError] = useFetch(baseUrl + '/subjects');
 
 
     //Logic to add hours
@@ -116,7 +117,7 @@ const Admin = () => {
                 thursday:thursdayHours,
                 friday:fridayHours,
             }})
-        fetch("http://localhost:5000/tutors",  {
+        fetch(baseUrl + "/tutors",  {
             method: "POST",
             headers:{
                 "Content-Type":"application/json"
