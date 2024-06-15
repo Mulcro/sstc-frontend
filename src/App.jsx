@@ -9,13 +9,14 @@ import { useEffect } from 'react';
 
 
 function App() {
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const refreshActiveSessions = () => {
       dispatch(fetchActiveSessions())
     }
 
-    refreshActiveSessions();
+    refreshActiveSessions();  
 
     const timerId = setInterval(refreshActiveSessions,2500)
 
@@ -23,8 +24,6 @@ function App() {
   },[])
 
 
-  const dispatch = useDispatch();
-  
   return (
     <div className="App">
       {/* <SideBar/>  */}
