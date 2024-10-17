@@ -1,6 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import baseUrl from "../../baseUrl";
 
+/**
+ I should implement a method to only check on active sessions if the current active sessions aren't empty. Maybe
+**/
 const initialState = {
     loading: false,
     data: [],
@@ -10,8 +13,11 @@ const initialState = {
 export const fetchActiveSessions = createAsyncThunk(
     'sessions/fetchActiveSessions',
     async () => {
-        const res = await fetch(baseUrl + `/sessions/active`).then(res => res.json())
-        return res.sessions;
+        const res = await fetch(baseUrl + `/sessions/active`).then(res => {
+            // console.log("JSON response: " + JSON.stringify(res.json()))
+            return res.json()
+        })
+        return res;
     }
 )
 
@@ -43,7 +49,7 @@ const sessionSlice = createSlice({
         builder.addCase(fetchActiveSessions.rejected, (state,action) => {
             if((state.error !== action.error.message) ){
                 state.loading = false;
-                state.sessions = [],
+                state.data = [],
                 state.error = action.error.message
             }
         })
