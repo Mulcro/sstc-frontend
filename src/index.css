@@ -11,6 +11,28 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* #sessionSection{
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 41, 118, 1) rgba(0,0,0, 0);
+} */
+
+/* styles.css */
+#sessionSection::-webkit-scrollbar {
+  width: 1vw;
+}
+#sessionSection::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0); 
+}
+#sessionSection::-webkit-scrollbar-thumb {
+  background: rgba(0, 41, 118, 0.3);
+  border-radius: 1rem;
+  border: 1px solid rgba(232, 181, 75, 1);
+}
+#sessionSection::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 41, 118, 1);
+}
+
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;

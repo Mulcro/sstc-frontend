@@ -26,12 +26,13 @@ const useFetch = (url) => {
                 setData(dataa)
                 setLoading(false)
                 setError(null)
-                console.log(`Data: ${dataa}`)
+                // console.log(`Data: ${dataa}`)
                 if(fetchTimer){
                     clearInterval(fetchTimer)
                 }
             })
             .catch(err => {
+                console.log(err)
                 //To prevent unecessary state updates
                 if(!(JSON.stringify(err.message) === JSON.stringify(error))){
                     setLoading(false);
