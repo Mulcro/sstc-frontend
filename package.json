@@ -16,10 +16,11 @@
     "redux": "^5.0.1",
     "tailwind-scrollbar": "^3.1.0",
     "vite-plugin-env-compatible": "^2.0.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "esbuild": "0.21.5"
   },
   "scripts": {
-    "start": "vite",
+    "start": "vite --host 0.0.0.0",
     "build": "vite build",
     "serve": "vite preview",
     "test": "vite test"
