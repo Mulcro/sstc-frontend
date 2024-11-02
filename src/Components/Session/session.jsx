@@ -268,7 +268,11 @@ const Session = () => {
     return ( 
         <>
             {(subjectsLoading && !subjectsError && !subjectsData) || (languagesLoading && !languages && !languagesError)  &&
-                <div className='h-[80vh] m-auto'>Loading...</div>
+                <div className='w-full h-[85vh] p-5 flex flex-col justify-center items-center rounded bg-gradient-to-l from-mccd-gold to-mccd-blue'>
+                    <div className="w-[250px] h-[135px] flex justify-center items-center">
+                        <div className="w-8 h-8 border-mccd-blue border-t-mccd-gold border-4 rounded-full animate-spin"/>
+                    </div>
+                </div>
             }
             {(subjectsError && languagesError) &&
                 <div className=' h-[80vh] m-auto p-3 bg-black border-2 border-orange-400 rounded-xl shadow-2xl w-[20vw]'>
@@ -278,11 +282,11 @@ const Session = () => {
                 </div>
             }
             {(subjectsData && languages && groupTables) &&
-                <div className='here w-full h-[85vh] p-5 flex flex-col justify-center items-center rounded bg-gradient-to-l from-mccd-gold to-mccd-blue'>
+                <div className='w-full h-[85vh] p-5 flex flex-col justify-center items-center rounded bg-gradient-to-l from-mccd-gold to-mccd-blue'>
                     <div id='sessionSection' className=' w-[70vw] scroll-smooth overflow-y-scroll h-full bg-white/60 p-20 rounded shadow-xl border border-double border-mccd-gold border-2 '>               
-                            <form className=" flex flex-col justify-center items-center bg-black p-5 rounded-xl h-[35vh] w-[35vw] m-auto border border-2 border-mccd-gold" >
+                            <form className=" flex flex-col gap-3 justify-center items-center bg-black/70 p-5 rounded-xl h-[35vh] w-[35vw] m-auto border border-2 border-mccd-gold" >
 
-                                <div className={(!querySubject) ? "block mt-5 mb-2 px-6 py-1 rounded bg-mccd-blue-light border-2 border-mccd-gold-dark" : "hidden" }>
+                                <div className={(!querySubject) ? "block mt-2 mb-2 px-6 py-1 rounded bg-mccd-blue-light border-2 border-mccd-gold-dark" : "hidden" }>
                                     {<p className='text-white'>
                                         Select a Subject
                                     </p>}
@@ -297,7 +301,7 @@ const Session = () => {
                                     })}
                                 </select>
 
-                                <div className={(!type) ? "block mt-5 mb-2 px-6 py-1 rounded bg-mccd-blue-light border-2 border-mccd-gold-dark" : "hidden" }>
+                                <div className={(!type) ? "block mt-2 mb-2 px-6 py-1 rounded bg-mccd-blue-light border-2 border-mccd-gold-dark" : "hidden" }>
                                     {<p className='text-white'>
                                         Select Session Type
                                     </p>}
@@ -328,7 +332,7 @@ const Session = () => {
 
                             </form>
                             
-                            <div >
+                            <div className='flex flex-col items-center' >
                                 <h3 className="p-4 font-bold underline " >Active Sessions</h3>
                                 <div className="flex flex-row items-center justify-center gap-4">
                                     {activeSessions.error &&

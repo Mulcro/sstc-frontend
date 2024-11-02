@@ -29,7 +29,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <div className="App bg-gradient-to-l from-mccd-gold to-mccd-blue">
+      <div className="bg-gradient-to-l from-mccd-gold to-mccd-blue">
         <Navbar/>
         {/* <SideBar/>  */}
         <Routes>

@@ -4,17 +4,27 @@ import baseUrl from '../../baseUrl';
 const GroupSessionCard = ({table}) => {
 
     const [activeSessions, setActiveSessions] = useState([]);
-    const [selectedSession, setSelectedSession] = useState();
+    const [selectedSessions, setSelectedSession] = useState(new Set());
 
+    useEffect(() => {
+        console.log(selectedSessions)
+    }, [selectedSessions])
+    
     const handleCheckBox = (e) => {
         
         if(e.target.checked){
-            setSelectedSession(e.target.value)
-            console.log(selectedSession)
+            setSelectedSession(prevSelectedSessions => {
+                const newSet = new Set(prevSelectedSessions);
+                newSet.add(e.target.value);
+                return newSet;
+            })            
         }
         else{
-            setSelectedSession(null)
-            console.log(selectedSession)
+            setSelectedSession(prevSelectedSessions => {
+                const newSet = new Set(prevSelectedSessions);
+                newSet.delete(e.target.value);
+                return newSet;
+            })
         }
         
     }
@@ -37,25 +47,31 @@ const GroupSessionCard = ({table}) => {
     }    
 
     const handleEndSession = () => {
-        fetch(baseUrl + `/sessions/group/${selectedSession}`,{
-            method:'PATCH'
-        })
-        .then(res => {
-            if(res.ok)
-                return res.json()
-            else{
-                return res.json().then(err => new Error(err.message))
-            }
-        })
-        .then(data => {
-            console.log("Session Ended")
-            fetchActiveSessions();
-            setSelectedSession(null)
-        })
-        .catch(err => {
-            console.log(err)
+        console.log("hit")
+        selectedSessions.forEach( value => {
+            console.log(`Value: ${value}`)
+            fetch(baseUrl + `/sessions/group/${value}`,{
+                method:'PATCH'
+            })
+            .then(res => {
+                if(res.ok)
+                    return res.json()
+                else{
+                    return res.json().then(err => new Error(err.message))
+                }
+            })
+            .then(data => {
+                console.log("Session Ended")
+                fetchActiveSessions();
+            })
+            .catch(err => {
+                console.log(err)
+            })
+
+            selectedSessions.delete(value);
         })
     }
+    
 
     useEffect(() => {
         fetchActiveSessions()
@@ -68,11 +84,11 @@ const GroupSessionCard = ({table}) => {
 
 
     return ( 
-        <div className="bg-black text-white border border-2 border-mccd-gold rounded-lg p-5">
+        <div className="flex flex-col justify-center items-center bg-black text-white border border-2 border-mccd-gold rounded-lg p-5">
         
             <h3 className="underline font-bold tracking-wide mb-5" >{table.name}</h3>
 
-            <div className="flex flex-col justify-center items-center">
+            <div className='flex flex-col items-center'>
                 <p>Active Tutors:</p>
                 {table.tutors.length > 0 &&
                     <ul className="text-green-300">
@@ -113,7 +129,7 @@ const GroupSessionCard = ({table}) => {
                 }
             </div>
             
-            {selectedSession && activeSessions.length > 0 &&
+            {selectedSessions.size > 0 && activeSessions.length > 0 &&
                 <button className='bg-mccd-blue px-1 my-1 mx-1 border border-solid border-mccd-gold-dark border-2 rounded transition-all duration-300 ease-in-out hover:bg-mccd-gold-dark hover:text-mccd-blue hover:border-mccd-blue-light"' onClick={() => handleEndSession()}>End Session</button>
             }
         </div>
