@@ -1,0 +1,50 @@
+name: CI/CD pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  #Need to write tests for the frontend
+
+  deploy:
+    #specify runner + deployment steps
+    runs-on: ubuntu-latest
+    
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to Heroku Container Registry
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          HEROKU_EMAIL: ${{ secrets.HEROKU_EMAIL }}
+        run: |
+          echo "$HEROKU_API_KEY" | docker login --username="$HEROKU_EMAIL" --password-stdin registry.heroku.com
+
+      - name: Build Docker image
+        env:
+          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+        run: |
+          docker build -t registry.heroku.com/$HEROKU_APP_NAME/web .
+
+      - name: Push Docker image to Heroku
+        env:
+          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+        run: |
+          docker push registry.heroku.com/$HEROKU_APP_NAME/web
+
+      - name: Install Heroku CLI
+        uses: supercharge/install-heroku-cli-action@1.1.0
+
+      - name: Release to Heroku
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+        run: |
+          heroku container:release web --app $HEROKU_APP_NAME
