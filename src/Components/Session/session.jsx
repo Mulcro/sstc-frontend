@@ -226,7 +226,7 @@ const Session = () => {
 
     const handleEndSession = (sessionId) => {
         
-        fetch(`http://localhost:5000/sessions/end/${sessionId}`, {
+        fetch(`${baseUrl}/sessions/end/${sessionId}`, {
             method:"PATCH",
             headers:{
                 "Content-Type":"application/json"
