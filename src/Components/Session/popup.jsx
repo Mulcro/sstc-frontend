@@ -118,10 +118,9 @@ const Popup = ({students,setStudents,handleFunction, data,tutorId, setTutorId,se
 
                     <div className={err ? "block bg-black border-2 border-solid border-orange-400 text-orange-400 font bold rounded-xl p-2" : "hidden"}>{err}</div>
 
-                    { dataType === 0 ? <h2 className="font-bold underline">Available Tutors</h2> : <h2 className="font-bold underline">Clocked In Tutors</h2>}
+                    { dataType === 0 ? <h2 className="font-bold underline">Create New Individual Session</h2> : <h2 className="font-bold underline">Queue New Session</h2>}
                     <form className='flex flex-col gap-2' 
                         onSubmit={e => {
-                            console.log("hit")
                             handleFunction(e)
                             setStudents(new Map())
                             setPopup(false)
