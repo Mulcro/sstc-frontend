@@ -6,6 +6,14 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily:{
+        'roboto':['Roboto', 'sans-serif'],
+        'poppins':['Poppins', 'sans-serif'],
+        'proxima-nova':['proxima-nova','sans-serif']
+      },
+      boxShadow: {
+        'custom':'-20px 20px 5px -3px rgba(0, 0, 0, 0.4)'
+      },
       colors: {
         'mccd-gold': 'rgba(232, 181, 56, 1)',
         'mccd-blue': 'rgba(0, 41, 118, 1)',
