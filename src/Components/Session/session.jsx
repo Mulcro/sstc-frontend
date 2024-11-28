@@ -268,21 +268,21 @@ const Session = () => {
     return ( 
         <>
             {(subjectsLoading && !subjectsError && !subjectsData) || (languagesLoading && !languages && !languagesError)  &&
-                <div className='w-full h-[85vh] p-5 flex flex-col justify-center items-center rounded bg-gradient-to-l from-mccd-gold to-mccd-blue'>
+                <div className='w-full h-[85vh] p-5 flex flex-col justify-center items-center rounded bg-transparent'>
                     <div className="w-[250px] h-[135px] flex justify-center items-center">
                         <div className="w-8 h-8 border-mccd-blue border-t-mccd-gold border-4 rounded-full animate-spin"/>
                     </div>
                 </div>
             }
             {(subjectsError && languagesError) &&
-                <div className=' h-[80vh] m-auto p-3 bg-black border-2 border-orange-400 rounded-xl shadow-2xl w-[20vw]'>
+                <div className=' h-[80vh] m-auto p-3 bg-black border-2 border-orange-400 rounded-xl shadow-2xl w-[20vw] bg-transparent'>
                     <p className=' text-orange-400 text-sm underline'> <span className='font-bold'>Error:</span> {subjectsError}</p>
 
                     <p className='my-2 text-orange-400'>Please refresh page to try again</p>
                 </div>
             }
             {(subjectsData && languages && groupTables) &&
-                <div className='w-full h-[85vh] p-5 flex flex-col justify-center items-center rounded bg-gradient-to-l from-mccd-gold to-mccd-blue'>
+                <div className='w-full h-[85vh] p-5 flex flex-col justify-center items-center rounded bg-transparent'>
                     <div id='sessionSection' className=' w-[70vw] scroll-smooth overflow-y-scroll h-full bg-white/60 p-20 rounded shadow-xl border border-double border-mccd-gold border-2 '>               
                             <form className=" flex flex-col gap-3 justify-center items-center bg-black/70 p-5 rounded-xl h-[35vh] w-[35vw] m-auto border border-2 border-mccd-gold" >
 
