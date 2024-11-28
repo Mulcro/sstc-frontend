@@ -1,7 +1,6 @@
 import './App.css';
 import Session from './Components/Session/session';
 import Admin from './Components/Admin/admin';
-import SideBar from './Components/sidebar';
 import Navbar from './Components/navbar';
 import Main from './Components/main';
 import NotFound from './Components/notFound'
@@ -29,7 +28,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <div className="bg-gradient-to-l from-mccd-gold to-mccd-blue">
+      <div className="bg-gradient-to-r from-mccd-blue from-20% to-mccd-gold font-proxima-nova">
         <Navbar/>
         {/* <SideBar/>  */}
         <Routes>
